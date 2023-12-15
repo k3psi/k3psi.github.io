@@ -127,6 +127,8 @@ p {
 	transition: var(--theme-transition);
 	margin: 0 0.5rem 0.8rem 0;
 	display: inline-block;
+	transform: scale(1);
+	transform-origin: center center;
 }
 
 .button_parent {
@@ -144,4 +146,8 @@ p {
 	mix-blend-mode: screen;
 	color: #000;
 	background: #fff;
+}
+
+.button:hover {
+ transform: scale(1.2); /* Change the value to make the button larger or smaller */
 }
