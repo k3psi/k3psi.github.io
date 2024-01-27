@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #aee6e6; /* Light blue background color */
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="background"></canvas>
+
+  <script>
+    const canvas = document.getElementById('background');
+    const ctx = canvas.getContext('2d');
+
+    let particles = [];
+    const particleCount = 150;
+    const maxDistance = 200;
+
+    function Particle(x, y) {
+      this.x = x;
+      this.y = y;
+      this.radius = 2;
+      this.color = 'white';
+      this.vx = Math.random() * 2 - 1;
+      this.vy = Math.random() * 2 - 1;
+    }
+
+    function createParticles() {
+      for (let i = 0; i < particleCount; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        particles.push(new Particle(x, y));
+      }
+    }
+
+    function drawParticles() {
+      for (const particle of particles) {
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        ctx.fillStyle = particle.color;
+        ctx.fill();
+      }
+    }
+
+    function updateParticles() {
+      for (const particle of particles) {
+        particle.x += particle.vx;
+        particle.y += particle.vy;
+
+        if (particle.x < 0 || particle.x > canvas.width) {
+          particle.vx = -particle.vx;
+        }
+
+        if (particle.y < 0 || particle.y > canvas.height) {
+          particle.vy = -particle.vy;
+        }
+      }
+    }
+
+    function drawLines() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const distance = Math.sqrt(
+            (particles[i].x - particles[j].x) ** 2 +
+            (particles[i].y - particles[j].y) ** 2
+          );
+
+          if (distance < maxDistance) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = 'rgba(255, 255, 255, ' + (1 - distance / maxDistance) + ')';
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      updateParticles();
+      drawLines();
+      drawParticles();
+      requestAnimationFrame(animate);
+    }
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      particles = [];
+      createParticles();
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+
+    canvas.addEventListener('mousemove', (event) => {
+      const mouseX = event.clientX;
+      const mouseY = event.clientY;
+
+      for (const particle of particles) {
+        const distance = Math.sqrt(
+          (particle.x - mouseX) ** 2 +
+          (particle.y - mouseY) ** 2
+        );
+
+        if (distance < maxDistance) {
+          const angle = Math.atan2(mouseY - particle.y, mouseX - particle.x);
+          particle.vx = Math.cos(angle);
+          particle.vy = Math.sin(angle);
+        }
+      }
+    });
+
+    resizeCanvas();
+    createParticles();
+    animate();
+  </script>
+</body>
+</html>
